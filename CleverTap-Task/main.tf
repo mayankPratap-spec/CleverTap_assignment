@@ -28,7 +28,7 @@ module "sg" {
 }
 
 
-/*module "rds" {
+module "rds" {
   source = "./rds"
 
   db_instance_class    = "db.t3.micro"
@@ -47,7 +47,7 @@ module "sg" {
 
 output "db_endpoint" {
   value = module.rds.db_endpoint
-}*/
+}
 /*
 module "ec2_instances" {
   source = "./ec2" # Path to your EC2 instance module directory
