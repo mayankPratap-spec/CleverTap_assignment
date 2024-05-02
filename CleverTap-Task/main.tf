@@ -28,7 +28,7 @@ module "sg" {
 }
 
 
-module "rds" {
+/*module "rds" {
   source = "./rds"
 
   db_instance_class    = "db.t3.micro"
@@ -47,7 +47,7 @@ module "rds" {
 
 output "db_endpoint" {
   value = module.rds.db_endpoint
-}
+}*/
 /*
 module "ec2_instances" {
   source = "./ec2" # Path to your EC2 instance module directory
@@ -73,20 +73,21 @@ output "ec2_instance_private_ips" {
 }*/
 
 module "alb" {
-  source                     = "./alb"
-  vpc_id                     = module.vpc.vpc_id
-  alb_name                   = "wordpress-alb"
-  subnet_ids                 = module.vpc.public_subnet_ids
-  target_group_name          = "wordpress-tg"
-  target_group_port          = 80
-  target_group_protocol      = "HTTP"
+  source                = "./alb"
+  vpc_id                = module.vpc.vpc_id
+  alb_name              = "wordpress-alb"
+  subnet_ids            = module.vpc.public_subnet_ids
+  target_group_name     = "wordpress-tg"
+  target_group_port     = 80
+  target_group_protocol = "HTTP"
+  ssl_certificate_arn   = module.ssl.certificate_arn
   #instance_ids               = module.ec2_instances.instance_ids
-  alb_security_group_id     = [module.sg.alb_security_group_id]
+  alb_security_group_id      = [module.sg.alb_security_group_id]
   server_security_group_name = module.sg.ec2_security_group_name
 }
 
 module "asg" {
-  source  = "./asg"  # Update the path as per your directory structure
+  source = "./asg" # Update the path as per your directory structure
 
   availability_zones   = ["us-east-1a", "us-east-1b", "us-east-1c"]
   asg_desired_capacity = var.asg_desired_capacity
@@ -96,7 +97,26 @@ module "asg" {
   ec2_instance_type    = var.ec2_instance_type
   key_name             = var.key_name
   public_subnet_ids    = module.vpc.public_subnet_ids
-  target_group_arns =   [module.alb.target_group_arns]
-  security_group_ids =  [module.sg.ec2_security_group_id]
+  target_group_arns    = [module.alb.target_group_arns]
+  security_group_ids   = [module.sg.ec2_security_group_id]
 }
+
+# Module calling block for DNS Configuration module
+module "dns" {
+  source = "./dns"
+
+
+  domain_name     = "mayanktech.online"
+  elb_dns_name    = module.alb.alb_dns_name
+  elb_dns_zone_id = module.alb.alb_dns_zone_id
+}
+
+# Module calling block for SSL/TLS Setup module
+module "ssl" {
+  source = "./ssl"
+
+  domain_name = "mayanktech.online"
+  route53_zone_id = module.dns.route53_zone_id
+}
+
 
