@@ -31,15 +31,14 @@ resource "aws_launch_configuration" "wordpress_lc" {
 # Scaling Policy
 resource "aws_autoscaling_policy" "scale_out_policy" {
   name                   = "scale_out_on_high_cpu_utilization"
-  scaling_adjustment     = 2
-  adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
-  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
-
+  policy_type            = "TargetTrackingScaling"
+  estimated_instance_warmup = 300
   target_tracking_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ASGAverageCPUUtilization"
     }
     target_value = 20 # Adjust the target CPU utilization percentage as needed
   }
+
+  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
 }

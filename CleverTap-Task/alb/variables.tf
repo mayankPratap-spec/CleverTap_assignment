@@ -39,6 +39,10 @@ variable "server_instance_type" {
   default     = "t2.micro"
 }
 
+variable "ssl_certificate_arn" {
+  description = "acm certificate arn"
+}
+
 /*variable "server_ami" {
   description = "AMI ID for the servers"
 }
