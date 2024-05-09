@@ -13,7 +13,7 @@ provider "aws" {
 
 
 module "vpc" {
-  source                     = "./vpc" 
+  source                     = "./vpc"
   vpc_cidr_block             = "10.0.0.0/16"
   public_subnet_cidr_blocks  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   private_subnet_cidr_blocks = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
@@ -31,17 +31,17 @@ module "sg" {
 module "rds" {
   source = "./rds"
 
-  db_instance_class    = "db.t3.micro"
-  db_engine            = "mysql"
-  db_engine_version    = "8.0"
-  db_allocated_storage = 20
-  db_name              = "wordpressdb"
-  db_username          = "admin"
-  db_password          = "mayank1999"
-  db_subnet_group_name = "db-subnet-group"
-  vpc_id               = module.vpc.vpc_id
-  private_subnet_ids   = module.vpc.private_subnet_ids
-  rds_security_group_ids = [ module.sg.rds_security_group_id ]
+  db_instance_class      = "db.t3.micro"
+  db_engine              = "mysql"
+  db_engine_version      = "8.0"
+  db_allocated_storage   = 20
+  db_name                = "wordpressdb"
+  db_username            = "admin"
+  db_password            = "mayank1999"
+  db_subnet_group_name   = "db-subnet-group"
+  vpc_id                 = module.vpc.vpc_id
+  private_subnet_ids     = module.vpc.private_subnet_ids
+  rds_security_group_ids = [module.sg.rds_security_group_id]
 
 }
 
@@ -78,8 +78,8 @@ module "alb" {
   alb_name              = "wordpress-alb"
   subnet_ids            = module.vpc.public_subnet_ids
   target_group_name     = "wordpress-tg"
-  target_group_port     = 80
-  target_group_protocol = "HTTP"
+  target_group_port     = 443
+  target_group_protocol = "HTTPS"
   ssl_certificate_arn   = module.ssl.certificate_arn
   #instance_ids               = module.ec2_instances.instance_ids
   alb_security_group_id      = [module.sg.alb_security_group_id]
@@ -97,14 +97,18 @@ module "asg" {
   ec2_instance_type    = var.ec2_instance_type
   key_name             = var.key_name
   public_subnet_ids    = module.vpc.public_subnet_ids
+  db_name              = "wordpress"
+  db_password          = "mayank1999"
+  db_user              = "admin"
+  rds_endpoint        = module.rds.db_endpoint
   target_group_arns    = [module.alb.target_group_arns]
   security_group_ids   = [module.sg.ec2_security_group_id]
 }
 
+
 # Module calling block for DNS Configuration module
 module "dns" {
   source = "./dns"
-
 
   domain_name     = "mayanktech.online"
   elb_dns_name    = module.alb.alb_dns_name
@@ -115,8 +119,6 @@ module "dns" {
 module "ssl" {
   source = "./ssl"
 
-  domain_name = "mayanktech.online"
+  domain_name     = "mayanktech.online"
   route53_zone_id = module.dns.route53_zone_id
 }
-
-

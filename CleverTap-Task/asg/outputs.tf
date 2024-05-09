@@ -17,3 +17,4 @@ output "asg_max_size" {
 output "asg_launch_configuration_name" {
   value = aws_launch_configuration.wordpress_lc.name
 }
+

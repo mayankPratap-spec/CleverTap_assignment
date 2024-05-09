@@ -46,3 +46,29 @@ variable "target_group_arns" {
 variable "security_group_ids" {
   type    = list(string)
 }
+
+variable "db_name" {
+  description = "The name of the RDS database"
+  type = string
+}
+
+variable "db_user" {
+  description = "The username for the RDS database"
+  type = string
+}
+
+variable "db_password" {
+  description = "The password for the RDS database"
+  type = string
+}
+
+variable "rds_endpoint" {
+  description = "Endpoint of the RDS instance"
+  type        = string
+}
+
+/*
+variable "new_hostname" {
+ description = "represents the host name of the instance"
+ type = string
+}*/

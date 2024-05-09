@@ -83,3 +83,23 @@ resource "aws_route_table_association" "private_association" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+/*
+# Create EIP for NAT gateway
+resource "aws_eip" "nat" {}
+
+# Create NAT gateway
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public[0].id
+
+  tags = {
+    Name = "NATGateway"
+  }
+}
+
+# Create route for private subnets to route traffic through the NAT gateway
+resource "aws_route" "private" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"  # Route all outbound traffic
+  nat_gateway_id         = aws_nat_gateway.nat.id
+}*/

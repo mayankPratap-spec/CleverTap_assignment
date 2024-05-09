@@ -49,3 +49,4 @@ variable "rds_security_group_ids" {
   description = "sg id for rds instance"
   type = list(string)
 }
+
